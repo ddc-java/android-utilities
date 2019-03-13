@@ -1,7 +1,10 @@
 apply plugin: 'com.android.library'
-apply plugin: 'digital.wup.android-maven-publish'
+apply plugin: 'com.github.dcendents.android-maven'
+
+group='com.github.deep-dive-coding-java'
 
 android {
+
     compileSdkVersion 28
 
     defaultConfig {
@@ -18,17 +21,6 @@ android {
         }
     }
 
-}
-
-publishing {
-    publications {
-        defaultAar(MavenPublication) {
-            from components.android
-            groupId 'edu.cnm.deepdive'
-            artifactId 'android-util'
-            version '1.0.0'
-        }
-    }
 }
 
 dependencies {
