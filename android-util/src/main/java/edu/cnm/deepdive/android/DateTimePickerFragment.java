@@ -32,6 +32,9 @@ import java.util.Calendar;
  * DatePickerDialog} or {@link TimePickerDialog} (depending on the selected {@link Mode}). This
  * class is intended not only to simplify the use of the underlying dialogs, but also to encourage a
  * fluent, functional style of use.
+ *
+ * @author Nicholas Bennett, Deep Dive Coding
+ * @version 1.0.1
  */
 public class DateTimePickerFragment extends DialogFragment
     implements DatePickerDialog.OnDateSetListener, TimePickerDialog.OnTimeSetListener {

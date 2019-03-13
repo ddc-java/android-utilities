@@ -64,6 +64,9 @@ import android.util.Log;
  * (returned by {@link Transformer#transform(Object)} and consumed by {@link #onPostExecute(Object)}
  * and {@link #onCancelled(Object)}, or (usually) {@link Void} if the background processing is not
  * intended to return a result.
+ *
+ * @author Nicholas Bennett, Deep Dive Coding
+ * @version 1.0.1
  */
 public class BaseFluentAsyncTask<Params, Progress, Intermediate, Result>
     extends AsyncTask<Params, Progress, Result> {
