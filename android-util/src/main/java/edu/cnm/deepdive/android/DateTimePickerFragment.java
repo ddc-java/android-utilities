@@ -29,7 +29,7 @@ import java.util.Calendar;
 
 /**
  * Simple date/time picker, implemented as a {@link DialogFragment} wrapping a {@link
- * DatePickerDialog} or {@link TimePickerDialog} (depending on the selected {@link Mode}). rThis
+ * DatePickerDialog} or {@link TimePickerDialog} (depending on the selected {@link Mode}). This
  * class is intended not only to simplify the use of the underlying dialogs, but also to encourage a
  * fluent, functional style of use.
  */
