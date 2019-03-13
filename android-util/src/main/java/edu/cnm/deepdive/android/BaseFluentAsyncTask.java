@@ -66,7 +66,7 @@ import android.util.Log;
  * intended to return a result.
  *
  * @author Nicholas Bennett, Deep Dive Coding
- * @version 1.0.1
+ * @version 1.0.2
  */
 public class BaseFluentAsyncTask<Params, Progress, Intermediate, Result>
     extends AsyncTask<Params, Progress, Result> {
