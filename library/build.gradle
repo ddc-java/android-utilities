@@ -33,24 +33,25 @@ task sourcesJar(type: Jar) {
     from android.sourceSets.main.java.sourceFiles
 }
 
-task javadoc(type: Javadoc) {
-    failOnError = false
-    source = android.sourceSets.main.java.sourceFiles
-    classpath += files(android.getBootClasspath().join(File.pathSeparator))
-    options.links("https://docs.oracle.com/javase/7/docs/api/")
-    options.linksOffline("https://developer.android.com/reference", "${android.sdkDirectory}/docs/reference")
-    title("Deep Dive Coding Android Utility Classes")
-    exclude '**/BuildConfig.java'
-    exclude '**/R.java'
-}
+//task javadoc(type: Javadoc) {
+//    failOnError = false
+//    source = android.sourceSets.main.java.sourceFiles
+//    classpath += files(android.getBootClasspath().join(File.pathSeparator))
+//    options.links("https://docs.oracle.com/javase/7/docs/api/")
+//    options.linksOffline("https://developer.android.com/reference", "$projectDir".toString())
+//    title("Deep Dive Coding Android Utility Classes")
+//    exclude '**/BuildConfig.java'
+//    exclude '**/R.java'
+//}
 
-task javadocJar(type: Jar, dependsOn: javadoc) {
+//task javadocJar(type: Jar, dependsOn: javadoc) {
+task javadocJar(type: Jar) {
     classifier = 'javadoc'
-    from javadoc.destinationDir
+    from "$projectDir/../docs/api"
 }
 
 task classesJar(type: Jar) {
-    from "$buildDir/intermediates/classes/release"
+    from "$buildDir/intermediates/javac/release/compileReleaseJavaWithJavac/classes"
 }
 
 artifacts {
