@@ -21,7 +21,7 @@ import android.util.Log;
 
 /**
  * Declares methods, nested interfaces, and a nested exception class, intended to encourage a more
- * fluent, functional, and service-oriented style of extending {@link AsyncTask}.
+ * fluent, functional, and service-oriented style of extending and using {@link AsyncTask}.
  *
  * <p>One aim of this approach is to encourage implementation of {@link
  * AsyncTask} subclasses that are loosely coupled with consumer logic, and easily reused. For
@@ -45,11 +45,31 @@ import android.util.Log;
  * perform(Params...)}, or by specifying a lambda or instance of an anonymous class in
  * an invocation of {@link #setPerformer(Performer)}.</p>
  *
- * <p><strong>Important:</strong> If the <code>Intermediate</code> and <code>Result</code> types
+ * <p><strong>Important notes:</strong></p>
+ * <ul>
+ * <li><p>
+ * This class overrides and makes <code>final</code> the {@link #doInBackground(Object[])},
+ * {@link #onProgressUpdate(Object[])}, {@link #onPostExecute(Object)}, and {@link
+ * #onCancelled(Object)} methods. If an app needs to override these methods, then it should create a
+ * subclass of {@link AsyncTask}, rather than a subclass of {@link BaseFluentAsyncTask}.
+ * </p></li>
+ * <li><p>
+ * If the <code>Intermediate</code> and <code>Result</code> types
  * specified for an instance of this class (or a subclass) are different, then {@link
  * #setTransformer(Transformer)} <strong>must</strong> be invoked to configure a mapping object
  * between values of those 2 types; otherwise, a {@link ClassCastException} is likely to be thrown.
- * </p>
+ * </p></li>
+ * <li><p>
+ * Passing a <code>null</code> argument to {@link #setPerformer(Performer)}, {@link
+ * #setTransformer(Transformer)}, {@link #setProgressListener(ProgressListener)}, {@link
+ * #setSuccessListener(ResultListener)}, or {@link #setSuccessListener(ResultListener)} will
+ * result in {@link NullPointerException} being thrown at the corresponding moment in the execution
+ * lifecycle of a <code>BaseFluentAsyncTask</code> instance. However, if any of those methods is
+ * simply not invoked, then a default instance of the relevant listener is used. Thus, if a consumer
+ * wishes the task to do nothing for one or more of the performance, transformation, progress,
+ * success, or failure phases, there is no need to clear or replace the corresponding listener.
+ * </p></li>
+ * </ul>
  *
  * @param <Params> type of input parameters used by the asynchronous task (consumed by {@link
  * #perform(Object[])}), or {@link Void} if no inputs will be used.
@@ -66,7 +86,7 @@ import android.util.Log;
  * intended to return a result.
  *
  * @author Nicholas Bennett, Deep Dive Coding
- * @version 1.0.2
+ * @version 1.0.3
  */
 public class BaseFluentAsyncTask<Params, Progress, Intermediate, Result>
     extends AsyncTask<Params, Progress, Result> {
@@ -119,26 +139,29 @@ public class BaseFluentAsyncTask<Params, Progress, Intermediate, Result>
 
   /**
    * Implements the <code>abstract</code> {@link AsyncTask#doInBackground(Object[])} to divide
-   * background processing into 2 components: performance and transformation. If the performance
-   * phase (implemented in {@link #perform(Object[])} throws a {@link TaskException}, the
-   * transformation phase (specified in {@link #setTransformer(Transformer)}) will not be executed.
-   * Any value (including <code>null</code> returned by {@link #perform(Object[])} will be passed in
-   * the invocation to {@link Transformer#transform(Object)}.
-   * <p>As a rule, subclasses of {@link BaseFluentAsyncTask} should <strong>not</strong> override
-   * this method, but should instead override {@link #perform(Object[])}, or provide a lambda or
-   * {@link Performer} implementation to {@link #setPerformer(Performer)}.</p>
+   * background processing into 2 components: performance and transformation. Any value (including
+   * <code>null</code>) returned by {@link #perform(Object[])} will be passed in the invocation of
+   * {@link Transformer#transform(Object)}.
+   * <p> If the code of the performance phase throws a {@link TaskException} (or any other {@link
+   * Exception}), the transformation phase will not be executed. If such an exception is thrown in
+   * either the performance phase or the transformation phase, the listener set (if any) via {@link
+   * #setFailureListener(ResultListener)} will be used, instead of any listener set via {@link
+   * #setSuccessListener(ResultListener)}.</p>
+   * <p>Subclasses of {@link BaseFluentAsyncTask} cannot override this method (since it is declared
+   * <code>final</code>), but can instead override {@link #perform(Object[])}, or provide a lambda
+   * or {@link Performer} implementation in an invocation of {@link #setPerformer(Performer)}.</p>
    *
    * @param params input arguments to background processing.
    * @return background processing results.
    */
   @Nullable
   @Override
-  protected Result doInBackground(Params... params) {
+  protected final Result doInBackground(Params... params) {
     try {
       return transformer.transform(perform(params));
     } catch (TaskException e) {
       cancel(true);
-    } catch (RuntimeException e) {
+    } catch (Exception e) {
       Log.e(getClass().getSimpleName(), e.getMessage(), e);
       cancel(true);
     }
@@ -147,42 +170,45 @@ public class BaseFluentAsyncTask<Params, Progress, Intermediate, Result>
 
   /**
    * Invokes {@link ProgressListener#update(Object[])}, presumably to update the UI to display the
-   * progress/status of the background processing. Rather than overriding this method, the {@link
-   * #setProgressListener(ProgressListener)} method should be invoked on instances of this class or
-   * a subclass.
+   * progress/status of the background processing. Rather than overriding this method
+   * (which is not possible, since the method is <code>final</code>), a listener should be attached
+   * by invoking {@link #setProgressListener(ProgressListener)} on an instance of this class or a
+   * subclass.
    *
    * @param values progress
    */
   @Override
-  protected void onProgressUpdate(Progress... values) {
+  protected final void onProgressUpdate(Progress... values) {
     super.onProgressUpdate(values);
     progressListener.update(values);
   }
 
   /**
    * Invokes {@link ResultListener#handle(Object)} to perform any UI thread-based post-processing
-   * after successful completion of background processing. Rather than overriding this method, the
-   * {@link #setSuccessListener(ResultListener)} method should generally be invoked on instances of
-   * this class or a subclass.
+   * after successful completion of background processing. Rather than overriding this method
+   * (which is not possible, since the method is <code>final</code>), a listener should be attached
+   * by invoking {@link #setSuccessListener(ResultListener)} on an instance of this class or a
+   * subclass.
    *
    * @param result background processing results.
    */
   @Override
-  protected void onPostExecute(@Nullable Result result) {
+  protected final void onPostExecute(@Nullable Result result) {
     super.onPostExecute(result);
     successListener.handle(result);
   }
 
   /**
    * Invokes {@link ResultListener#handle(Object)} to perform any UI thread-based post-processing
-   * after unsuccessful completion of background processing. Rather than overriding this method, the
-   * {@link #setFailureListener(ResultListener)} method should generally be invoked on instances of
-   * this class or a subclass.
+   * after unsuccessful completion of background processing. Rather than overriding this method
+   * (which is not possible, since the method is <code>final</code>), a listener should be attached
+   * by invoking {@link #setFailureListener(ResultListener)} on an instance of this class or a
+   * subclass.
    *
    * @param result background processing results.
    */
   @Override
-  protected void onCancelled(@Nullable Result result) {
+  protected final void onCancelled(@Nullable Result result) {
     super.onCancelled(result);
     failureListener.handle(result);
   }
@@ -244,7 +270,7 @@ public class BaseFluentAsyncTask<Params, Progress, Intermediate, Result>
 
   /**
    * Specifies the {@link ResultListener} implementation instance (usually a lambda) to be used for
-   * additional UI thread processing following unsuccessful completion of backgrounnd processing.
+   * additional UI thread processing following unsuccessful completion of background processing.
    *
    * @param listener {@link ResultListener} callback object or lambda.
    * @return this instance (for fluent-style method chaining).
@@ -355,17 +381,37 @@ public class BaseFluentAsyncTask<Params, Progress, Intermediate, Result>
    */
   public static class TaskException extends RuntimeException {
 
+    /**
+     * Initializes exception with no cause or message specified.
+     */
     public TaskException() {
+      super();
     }
 
+    /**
+     * Initializes exception with the specified message.
+     *
+     * @param message description of this exception.
+     */
     public TaskException(String message) {
       super(message);
     }
 
+    /**
+     * Initializes exception with the specified message and cause.
+     *
+     * @param message description of this exception.
+     * @param cause exception that caused <code>this</code> exception to be raised.
+     */
     public TaskException(String message, Throwable cause) {
       super(message, cause);
     }
 
+    /**
+     * Initializes exception with the specified cause.
+     *
+     * @param cause exception that caused <code>this</code> exception to be raised.
+     */
     public TaskException(Throwable cause) {
       super(cause);
     }

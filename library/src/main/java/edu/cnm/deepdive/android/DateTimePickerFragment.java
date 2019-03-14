@@ -34,7 +34,7 @@ import java.util.Calendar;
  * fluent, functional style of use.
  *
  * @author Nicholas Bennett, Deep Dive Coding
- * @version 1.0.2
+ * @version 1.0.3
  */
 public class DateTimePickerFragment extends DialogFragment
     implements DatePickerDialog.OnDateSetListener, TimePickerDialog.OnTimeSetListener {
