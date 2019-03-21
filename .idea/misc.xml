@@ -11,7 +11,7 @@
     <option name="OPTION_DOCUMENT_TAG_VERSION" value="true" />
     <option name="OTHER_OPTIONS" value="-bootclasspath &quot;C:\Program Files\Java\jdk1.8.0_202\jre\lib\rt.jar&quot;;C:\android\sdk\platforms\android-21\android.jar -link https://docs.oracle.com/javase/7/docs/api/ -linkoffline https://developer.android.com/reference C:\android\sdk\docs\reference -windowtitle &quot;Deep Dive Coding Android Utility Classes&quot; " />
   </component>
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_7" project-jdk-name="1.8" project-jdk-type="JavaSDK">
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_8" project-jdk-name="1.8" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/out" />
   </component>
   <component name="lambda">
