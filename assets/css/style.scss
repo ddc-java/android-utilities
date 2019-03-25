@@ -1,0 +1,16 @@
+---
+---
+
+@import "{{ site.theme }}";
+
+#header_wrap .inner {
+    padding: 30px 10px 30px 10px;
+}
+
+.inner {
+    max-width: 840px;
+}
+
+code {
+    white-space: pre-wrap;
+}

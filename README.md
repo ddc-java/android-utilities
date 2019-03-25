@@ -1,5 +1,3 @@
-# Deep Dive Coding Android Utility Classes, v1.0.3
-
 This repository contains utility classes (currently 2 of them) that simplify the use of some important Android features in application code.
 
 ## `BaseFluentAsyncTask`
@@ -29,3 +27,13 @@ private void changeAnswer() {
 ```
 
 `BaseFluentAsyncTask` also divides the background processing portion of its functionality into 2 phases: performance and transformation. This provides additional flexibility, allowing for the chaining of background operations; however, the added flexibility comes at the cost of some additional complexity in specification: whereas `AsyncTask` is a generic class with 3 types (`Param`, `Update`, and `Result`), `BaseFluentAsyncTask` has 4: `Param`, `Update`, `Intermediate`, and `Result`. `Intermediate` is the type of result returned by the performance phase of the background processing, while `Result` is the final type returned by the transformation phase. In many cases, these 2 types will be the same; the default transformer is an _identity transformer_, simply returning the value it receives as input.
+
+For more information, see the [Javadoc][docs/api/].
+
+## License
+
+Copyright 2019 Nicholas Bennett & Deep Dive Coding
+
+Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at <http://www.apache.org/licenses/LICENSE-2.0>.
+
+Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
