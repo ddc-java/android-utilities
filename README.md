@@ -28,7 +28,7 @@ private void changeAnswer() {
 
 `BaseFluentAsyncTask` also divides the background processing portion of its functionality into 2 phases: performance and transformation. This provides additional flexibility, allowing for the chaining of background operations; however, the added flexibility comes at the cost of some additional complexity in specification: whereas `AsyncTask` is a generic class with 3 types (`Param`, `Update`, and `Result`), `BaseFluentAsyncTask` has 4: `Param`, `Update`, `Intermediate`, and `Result`. `Intermediate` is the type of result returned by the performance phase of the background processing, while `Result` is the final type returned by the transformation phase. In many cases, these 2 types will be the same; the default transformer is an _identity transformer_, simply returning the value it receives as input.
 
-For more information, see the [Javadoc][docs/api/].
+For more information, see the [Javadoc](docs/api/).
 
 ## License
 
