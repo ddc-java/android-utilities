@@ -19,9 +19,9 @@ import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.TimePickerDialog;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.app.DialogFragment;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.DialogFragment;
 import android.text.format.DateFormat;
 import android.widget.DatePicker;
 import android.widget.TimePicker;
@@ -34,7 +34,7 @@ import java.util.Calendar;
  * fluent, functional style of use.
  *
  * @author Nicholas Bennett, Deep Dive Coding
- * @version 1.0.3
+ * @version 2.0.0
  */
 public class DateTimePickerFragment extends DialogFragment
     implements DatePickerDialog.OnDateSetListener, TimePickerDialog.OnTimeSetListener {
@@ -58,7 +58,7 @@ public class DateTimePickerFragment extends DialogFragment
   }
 
   @Override
-  public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+  public final void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
     Calendar updateValue = Calendar.getInstance();
     updateValue.setTimeInMillis(calendar.getTimeInMillis());
     updateValue.set(Calendar.YEAR, year);
@@ -70,7 +70,7 @@ public class DateTimePickerFragment extends DialogFragment
   }
 
   @Override
-  public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+  public final void onTimeSet(TimePicker view, int hourOfDay, int minute) {
     Calendar updateValue = Calendar.getInstance();
     updateValue.setTimeInMillis(calendar.getTimeInMillis());
     updateValue.set(Calendar.HOUR_OF_DAY, hourOfDay);
