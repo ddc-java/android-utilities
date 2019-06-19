@@ -2,7 +2,7 @@ This repository contains utility classes (currently 2 of them) that simplify the
 
 ## `BaseFluentAsyncTask`
 
-The standard `AsyncTask` class is a powerful tool for managing coordination between UI updates and short-lived background processing tasks (e.g. database updates, web service requests). However, the amount of boilerplate required is rather excessive&mdash;particularly if we're already using Java 8 features (esp. lambdas) in our code. The aim of `edu.cnm.deepdive.android.BaseFluentAsyncTask` is to simplify access to the capabilities of `AsyncTask`, especially for 3 use cases:
+The standard `AsyncTask` class is a powerful tool for managing coordination between UI updates and short-lived background processing tasks (e.g. database updates, web service requests). However, the amount of boilerplate required is rather excessive&mdash;particularly if we're already using Java 8 features (esp. lambdas) in our code. The aim of `edu.cnm.deepdive.android.FluentAsyncTask` is to simplify access to the capabilities of `AsyncTask`, especially for 3 use cases:
 
 * The UI updates to be performed on successful completion of the background processing differ between multiple points of invocation of the same background processing. An example of this would be a common database query or update that is performed from different fragments or activities, with different UI updates required in each case.
 
