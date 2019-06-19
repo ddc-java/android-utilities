@@ -140,7 +140,7 @@ public class FluentAsyncTask<Params, Progress, Result>
         }
       }
     }
-    return null;
+    return result;
   }
 
   /**
