@@ -1,6 +1,6 @@
 This repository contains utility classes (currently 2 of them) that simplify the use of some important Android features in application code.
 
-## `BaseFluentAsyncTask`
+## `FluentAsyncTask`
 
 The standard `AsyncTask` class is a powerful tool for managing coordination between UI updates and short-lived background processing tasks (e.g. database updates, web service requests). However, the amount of boilerplate required is rather excessive&mdash;particularly if we're already using Java 8 features (esp. lambdas) in our code. The aim of `edu.cnm.deepdive.android.FluentAsyncTask` is to simplify access to the capabilities of `AsyncTask`, especially for 3 use cases:
 
@@ -10,7 +10,7 @@ The standard `AsyncTask` class is a powerful tool for managing coordination betw
 
 * The combination of required background &amp; foreground operations would make the use of a simple `Thread` instance insufficient, but concise enough that a named or anonymous subclass of `AsyncTask` would be excessively verbose.
 
-`BaseFluentAsyncTask` changes the specification of post-background-processing logic from an inheritance-with-override style to a fluent configuration style. In many cases, this allows us to specify even moderately complex combinations of background and UI thread processing in a few lines of code, without the need to declare a subclass (named or anonymous) of `BaseFluentAsyncTask`. One example of this, taken from the [Strategies &amp; Aphorisms project](https://github.com/deep-dive-coding-java-cohort-6/strategies-aphorisms), includes a background database query, along with a UI update on successful completion.
+`FluentAsyncTask` changes the specification of post-background-processing logic from an inheritance-with-override style to a fluent configuration style. In many cases, this allows us to specify even moderately complex combinations of background and UI thread processing in a few lines of code, without the need to declare a subclass (named or anonymous) of `FluentAsyncTask`. One example of this, taken from the [Strategies &amp; Aphorisms project](https://github.com/deep-dive-coding-java-cohort-6/strategies-aphorisms), includes a background database query, along with a UI update on successful completion. (Note that this uses the `BaseFluentAsyncTask`, which was the v1.x name of the class that is now called `FluentAsyncTask`.)
 
 ```java
 private void changeAnswer() {
@@ -26,7 +26,7 @@ private void changeAnswer() {
 }
 ```
 
-`BaseFluentAsyncTask` also divides the background processing portion of its functionality into 2 phases: performance and transformation. This provides additional flexibility, allowing for the chaining of background operations; however, the added flexibility comes at the cost of some additional complexity in specification: whereas `AsyncTask` is a generic class with 3 types (`Param`, `Update`, and `Result`), `BaseFluentAsyncTask` has 4: `Param`, `Update`, `Intermediate`, and `Result`. `Intermediate` is the type of result returned by the performance phase of the background processing, while `Result` is the final type returned by the transformation phase. In many cases, these 2 types will be the same; the default transformer is an _identity transformer_, simply returning the value it receives as input.
+`FluentAsyncTask` also divides the background processing portion of its functionality into 2 phases: primary performance and additional processing. This provides additional flexibility, allowing for the chaining of background operations.
 
 For more information, see the [Javadoc](docs/api/).
 
