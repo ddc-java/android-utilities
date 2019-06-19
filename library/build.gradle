@@ -52,7 +52,7 @@ task javadocJar(type: Jar) {
 
 task classesJar(type: Jar) {
     dependsOn ':library:compileReleaseJavaWithJavac'
-    from "$buildDir/intermediates/javac/release/compileReleaseJavaWithJavac/classes"
+    from "$projectDir/build/intermediates/javac/release/compileReleaseJavaWithJavac/classes"
 }
 
 artifacts {
