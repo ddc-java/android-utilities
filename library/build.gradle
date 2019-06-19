@@ -50,12 +50,13 @@ task javadocJar(type: Jar) {
     from "$projectDir/../docs/api"
 }
 
-//task classesJar(type: Jar) {
-//    from "$buildDir/intermediates/javac/release/compileReleaseJavaWithJavac/classes"
-//}
-//
-//artifacts {
-//    archives classesJar
-//    archives javadocJar
-//    archives sourcesJar
-//}
+task classesJar(type: Jar) {
+    dependsOn ':library:compileReleaseJavaWithJavac'
+    from "$buildDir/intermediates/javac/release/compileReleaseJavaWithJavac/classes"
+}
+
+artifacts {
+    archives classesJar
+    archives javadocJar
+    archives sourcesJar
+}
