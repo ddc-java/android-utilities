@@ -1,5 +1,5 @@
 /*
- *    Copyright 2019 Nicholas Bennett & Deep Dive Coding
+ *    Copyright 2020 Deep Dive Coding/CNM Ingenuity, Inc.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -19,34 +19,60 @@ import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.TimePickerDialog;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.DialogFragment;
 import android.text.format.DateFormat;
 import android.widget.DatePicker;
 import android.widget.TimePicker;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentManager;
 import java.util.Calendar;
 
 /**
  * Simple date/time picker, implemented as a {@link DialogFragment} wrapping a {@link
  * DatePickerDialog} or {@link TimePickerDialog} (depending on the selected {@link Mode}). This
- * class is intended not only to simplify the use of the underlying dialogs, but also to encourage a
- * fluent, functional style of use.
+ * class is intended primarily to simplify &amp; unify the use of the underlying dialogs, and to
+ * demonstrate dialog-to-host interaction.
  *
  * @author Nicholas Bennett, Deep Dive Coding
- * @version 2.0.0
+ * @version 3.0.0
  */
 public class DateTimePickerFragment extends DialogFragment
     implements DatePickerDialog.OnDateSetListener, TimePickerDialog.OnTimeSetListener {
 
-  private Mode mode = Mode.DATE;
-  private Calendar calendar = Calendar.getInstance();
-  private OnChangeListener listener = null;
+  private static final String CALENDAR_KEY = "calendar";
+  private static final String MODE_KEY = "mode";
+
+  private Mode mode;
+  private Calendar calendar;
+  private OnChangeListener listener;
+
+  /**
+   * Creates and returns an instance of {@link DateTimePickerFragment}, configured for the specified
+   * selection {@link Mode}, using {@code calendar} as the starting date/time.
+   *
+   * @param mode {@link Mode#DATE} or {@link Mode#TIME} selection mode.
+   * @param calendar initially selected date/time.
+   * @return prepared instance of {@link DateTimePickerFragment}, ready for invocation of the {@link
+   * #show(FragmentManager, String)} method.
+   */
+  public DateTimePickerFragment createInstance(Mode mode, Calendar calendar) {
+    DateTimePickerFragment fragment = new DateTimePickerFragment();
+    Bundle args = new Bundle();
+    args.putSerializable(MODE_KEY, mode);
+    args.putSerializable(CALENDAR_KEY, calendar);
+    fragment.setArguments(args);
+    return fragment;
+  }
 
   @NonNull
   @Override
   public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
     Dialog dialog;
+    readArguments();
+    setupListener();
     if (mode == Mode.DATE) {
       dialog = new DatePickerDialog(getActivity(), this, calendar.get(Calendar.YEAR),
           calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
@@ -64,9 +90,7 @@ public class DateTimePickerFragment extends DialogFragment
     updateValue.set(Calendar.YEAR, year);
     updateValue.set(Calendar.MONTH, month);
     updateValue.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-    if (listener != null) {
-      listener.onChange(updateValue);
-    }
+    listener.onChange(updateValue);
   }
 
   @Override
@@ -75,65 +99,36 @@ public class DateTimePickerFragment extends DialogFragment
     updateValue.setTimeInMillis(calendar.getTimeInMillis());
     updateValue.set(Calendar.HOUR_OF_DAY, hourOfDay);
     updateValue.set(Calendar.MINUTE, minute);
-    if (listener != null) {
-      listener.onChange(updateValue);
+    listener.onChange(updateValue);
+  }
+
+  private void readArguments() {
+    Bundle args = getArguments();
+    if (args == null
+        || !args.containsKey(MODE_KEY)
+        || (mode = (Mode) args.getSerializable(MODE_KEY)) == null) {
+      mode = Mode.DATE;
+    }
+    if (args == null
+        || !args.containsKey(CALENDAR_KEY)
+        || (calendar = (Calendar) args.getSerializable(CALENDAR_KEY)) == null) {
+      calendar = Calendar.getInstance();
     }
   }
 
-  /**
-   * Returns the configured {@link Mode} (which defaults to {@link Mode#DATE} if not set).
-   *
-   * @return currently configured {@link Mode}.
-   */
-  public Mode getMode() {
-    return mode;
-  }
-
-  /**
-   * Sets the configured {@link Mode} (which defaults to {@link Mode#DATE} if not set).
-   *
-   * @param mode configured {@link Mode} to use when dialog is displayed.
-   * @return this {@link DateTimePickerFragment} instance.
-   */
-  public DateTimePickerFragment setMode(Mode mode) {
-    this.mode = mode;
-    return this;
-  }
-
-  /**
-   * Returns the {@link Calendar} instance used for the initially selected current date-time when the dialog is displayed.
-   *
-   * @return instance of {@link Calendar}.
-   */
-  public Calendar getCalendar() {
-    return calendar;
-  }
-
-  /**
-   * Sets the {@link Calendar} instance used for the initially selected current date-time when the dialog is displayed.
-   *
-   * @param calendar instance of {@link Calendar}.
-   * @return this {@link DateTimePickerFragment} instance.
-   */
-  public DateTimePickerFragment setCalendar(Calendar calendar) {
-    if (calendar != null) {
-      this.calendar.setTimeInMillis(calendar.getTimeInMillis());
+  private void setupListener() {
+    Fragment parentFragment = getParentFragment();
+    FragmentActivity hostActivity = getActivity();
+    if (parentFragment instanceof OnChangeListener) {
+      listener = (OnChangeListener) parentFragment;
+    } else if (hostActivity instanceof OnChangeListener) {
+      listener = (OnChangeListener) hostActivity;
     } else {
-      this.calendar = Calendar.getInstance();
+      listener = new OnChangeListener() {
+        @Override
+        public void onChange(Calendar calendar) {}
+      };
     }
-    return this;
-  }
-
-  /**
-   * Sets the {@link OnChangeListener} that will be used (invoking {@link OnChangeListener#onChange(Calendar)}) when the user dismisses the dialog by clicking the <strong>OK</strong> button.
-   *
-   * @param listener callback instance of {@link OnChangeListener} implementation.
-   * @return this {@link DateTimePickerFragment} instance.
-   */
-  public DateTimePickerFragment setOnChangeListener(
-      OnChangeListener listener) {
-    this.listener = listener;
-    return this;
   }
 
   /**
@@ -144,7 +139,9 @@ public class DateTimePickerFragment extends DialogFragment
   }
 
   /**
-   * Event handler for positive dismissal of the {@link DateTimePickerFragment}.
+   * Event handler for positive dismissal of the {@link DateTimePickerFragment}. In order to receive
+   * the updated date/time value, the parent fragment or host activity must implement this
+   * interface.
    */
   public interface OnChangeListener {
 
@@ -154,6 +151,7 @@ public class DateTimePickerFragment extends DialogFragment
      * @param calendar user-selected date-time.
      */
     void onChange(Calendar calendar);
+
   }
 
 }
